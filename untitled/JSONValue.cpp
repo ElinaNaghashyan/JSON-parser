@@ -219,7 +219,6 @@ void printJSON(const JSONValue& value, int indent = 0) {
 }
 
 
-// Example usage
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
 
@@ -227,9 +226,11 @@ int main() {
         JSONParser parser(json);
         JSONValue result = parser.parse();
         std::cout << "JSON parsed successfully!" << std::endl;
+        printJSON(result);
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 
     return 0;
 }
+
