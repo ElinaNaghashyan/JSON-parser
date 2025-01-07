@@ -315,6 +315,13 @@ JSONValue JSONParser::parseString() {
     return JSONValue(result);
 }
 
+void updateJSON(JSONValue& root, const std::string& key, const JSONValue& newValue) {
+    if (root.type == JSONValue::Type::OBJECT && root.objectValue.count(key)) {
+        root.objectValue[key] = newValue;
+    } else {
+        throw std::runtime_error("Key not found or not an object");
+    }
+}
 
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
