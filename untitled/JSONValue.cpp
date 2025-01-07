@@ -358,6 +358,18 @@ void benchmark(const std::string& json) {
     std::cout << "Parsing time: " << duration.count() << " seconds\n";
 }
 
+void testJSONParser() {
+    std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
+    JSONParser parser(json);
+    JSONValue result = parser.parse();
+
+    assert(result.type == JSONValue::Type::OBJECT);
+    assert(result.objectValue.count("name"));
+    assert(result.objectValue["name"].stringValue == "Elina");
+
+    std::cout << "All tests passed!" << std::endl;
+}
+
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
 
