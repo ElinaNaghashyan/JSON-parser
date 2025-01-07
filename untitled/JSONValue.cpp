@@ -11,6 +11,8 @@
 #include <cctype>
 #include <fstream>
 #include <chrono>
+#include <sstream>
+#include <cassert>
 
 // Represent a JSON value
 class JSONValue {
@@ -149,29 +151,6 @@ JSONValue JSONParser::parseArray() {
     return array;
 }
 
-JSONValue JSONParser::parseString() {
-    consume(); // Consume '"'
-    std::string result;
-    while (peek() != '"') {
-        char current = consume();
-        if (current == '\\') {
-            char escaped = consume();
-            if (escaped == '"') result += '"';
-            else if (escaped == '\\') result += '\\';
-            else if (escaped == '/') result += '/';
-            else if (escaped == 'b') result += '\b';
-            else if (escaped == 'f') result += '\f';
-            else if (escaped == 'n') result += '\n';
-            else if (escaped == 'r') result += '\r';
-            else if (escaped == 't') result += '\t';
-            else throw std::runtime_error("Invalid escape character");
-        } else {
-            result += current;
-        }
-    }
-    consume(); // Consume '"'
-    return JSONValue(result);
-}
 
 JSONValue JSONParser::parseNumber() {
     size_t start = position;
@@ -278,10 +257,17 @@ void writeFile(const std::string& filename, const std::string& data) {
     file << data;
 }
 
-std::string parseUnicodeEscape() {
+char consume(std::string &input, size_t &position) {
+    if (position >= input.size()) {
+        throw std::runtime_error("Unexpected end of input at position " + std::to_string(position));
+    }
+    return input[position++];
+}
+
+std::string parseUnicodeEscape(std::string &input, size_t &position) {
     std::string unicode;
     for (int i = 0; i < 4; ++i) {
-        char digit = consume();
+        char digit = consume(input, position);
         if (!std::isxdigit(digit)) {
             throw std::runtime_error("Invalid Unicode escape sequence");
         }
@@ -307,7 +293,7 @@ JSONValue JSONParser::parseString() {
             else if (escaped == 't') result += '\t';
             else if (escaped == 'u') {
                 std::string unicode = parseUnicodeEscape();
-                result += "\\u" + unicode; // Add unicode escape sequence as-is
+                result += "\\u" + unicode;
             } else {
                 throw std::runtime_error("Invalid escape character");
             }
@@ -371,17 +357,31 @@ void testJSONParser() {
 }
 
 int main() {
-    std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
-
     try {
+        // File input example
+        std::string json = readFile("input.json");
+
         JSONParser parser(json);
         JSONValue result = parser.parse();
+
         std::cout << "JSON parsed successfully!" << std::endl;
         printJSON(result);
+
+        // Serialize and save to file
+        std::string serialized = serializeJSON(result);
+        writeFile("output.json", serialized);
+
+        // Update and modify JSON
+        updateJSON(result, "name", JSONValue("Updated Name"));
+        printJSON(result);
+
+        // Query JSONPath
+        JSONValue skill = queryJSON(result, "skills.1");
+        printJSON(skill);
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 
     return 0;
 }
-
