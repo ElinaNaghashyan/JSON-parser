@@ -326,6 +326,28 @@ void updateJSON(JSONValue& root, const std::string& key, const JSONValue& newVal
     }
 }
 
+JSONValue queryJSON(const JSONValue& root, const std::string& path) {
+    std::stringstream ss(path);
+    std::string token;
+    JSONValue current = root;
+
+    while (std::getline(ss, token, '.')) {
+        if (current.type == JSONValue::Type::OBJECT && current.objectValue.count(token)) {
+            current = current.objectValue[token];
+        } else if (current.type == JSONValue::Type::ARRAY && std::isdigit(token[0])) {
+            int index = std::stoi(token);
+            if (index >= 0 && index < current.arrayValue.size()) {
+                current = current.arrayValue[index];
+            } else {
+                throw std::runtime_error("Index out of bounds in JSONPath query");
+            }
+        } else {
+            throw std::runtime_error("Invalid path segment: " + token);
+        }
+    }
+    return current;
+}
+
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
 
