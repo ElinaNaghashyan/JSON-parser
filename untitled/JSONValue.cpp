@@ -274,6 +274,48 @@ void writeFile(const std::string& filename, const std::string& data) {
     file << data;
 }
 
+std::string parseUnicodeEscape() {
+    std::string unicode;
+    for (int i = 0; i < 4; ++i) {
+        char digit = consume();
+        if (!std::isxdigit(digit)) {
+            throw std::runtime_error("Invalid Unicode escape sequence");
+        }
+        unicode += digit;
+    }
+    return unicode;
+}
+
+JSONValue JSONParser::parseString() {
+    consume(); // Consume '"'
+    std::string result;
+    while (peek() != '"') {
+        char current = consume();
+        if (current == '\\') {
+            char escaped = consume();
+            if (escaped == '"') result += '"';
+            else if (escaped == '\\') result += '\\';
+            else if (escaped == '/') result += '/';
+            else if (escaped == 'b') result += '\b';
+            else if (escaped == 'f') result += '\f';
+            else if (escaped == 'n') result += '\n';
+            else if (escaped == 'r') result += '\r';
+            else if (escaped == 't') result += '\t';
+            else if (escaped == 'u') {
+                std::string unicode = parseUnicodeEscape();
+                result += "\\u" + unicode; // Add unicode escape sequence as-is
+            } else {
+                throw std::runtime_error("Invalid escape character");
+            }
+        } else {
+            result += current;
+        }
+    }
+    consume(); // Consume '"'
+    return JSONValue(result);
+}
+
+
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
 
