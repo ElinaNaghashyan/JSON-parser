@@ -229,6 +229,38 @@ bool validateJSON(const std::string& json) {
     }
 }
 
+std::string serializeJSON(const JSONValue& value) {
+    switch (value.type) {
+        case JSONValue::Type::OBJECT: {
+            std::string result = "{";
+            for (const auto& [key, val] : value.objectValue) {
+                result += "\"" + key + "\":" + serializeJSON(val) + ",";
+            }
+            if (!value.objectValue.empty()) result.pop_back(); // Remove trailing comma
+            result += "}";
+            return result;
+        }
+        case JSONValue::Type::ARRAY: {
+            std::string result = "[";
+            for (const auto& val : value.arrayValue) {
+                result += serializeJSON(val) + ",";
+            }
+            if (!value.arrayValue.empty()) result.pop_back();
+            result += "]";
+            return result;
+        }
+        case JSONValue::Type::STRING:
+            return "\"" + value.stringValue + "\"";
+        case JSONValue::Type::NUMBER:
+            return std::to_string(value.numberValue);
+        case JSONValue::Type::BOOLEAN:
+            return value.boolValue ? "true" : "false";
+        case JSONValue::Type::NULLVALUE:
+            return "null";
+    }
+    return "";
+}
+
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
 
