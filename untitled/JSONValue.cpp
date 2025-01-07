@@ -218,6 +218,16 @@ void printJSON(const JSONValue& value, int indent = 0) {
     }
 }
 
+bool validateJSON(const std::string& json) {
+    try {
+        JSONParser parser(json);
+        parser.parse();
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Validation Error: " << e.what() << std::endl;
+        return false;
+    }
+}
 
 int main() {
     std::string json = R"({"name": "Elina", "age": 23, "skills": ["Coding", "Music"], "active": true})";
