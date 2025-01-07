@@ -49,6 +49,9 @@ private:
     }
 
     char consume() {
+        if (position >= input.size()) {
+            throw std::runtime_error("Unexpected end of input at position " + std::to_string(position));
+        }
         return input[position++];
     }
 
