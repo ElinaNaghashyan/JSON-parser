@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <cctype>
 #include <fstream>
+#include <chrono>
 
 // Represent a JSON value
 class JSONValue {
@@ -346,6 +347,15 @@ JSONValue queryJSON(const JSONValue& root, const std::string& path) {
         }
     }
     return current;
+}
+
+void benchmark(const std::string& json) {
+    auto start = std::chrono::high_resolution_clock::now();
+    JSONParser parser(json);
+    parser.parse();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Parsing time: " << duration.count() << " seconds\n";
 }
 
 int main() {
