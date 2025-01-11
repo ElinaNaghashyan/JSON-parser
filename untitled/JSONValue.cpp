@@ -399,6 +399,39 @@ bool validateSchema(const JSONValue& json, const JSONValue& schema) {
     return true;
 }
 
+void prettyPrintJSON(const JSONValue& value, int indent = 0) {
+    std::string indentation(indent, ' ');
+    switch (value.type) {
+        case JSONValue::Type::OBJECT:
+            std::cout << "{\n";
+        for (const auto& [key, val] : value.objectValue) {
+            std::cout << indentation << "  \"" << key << "\": ";
+            prettyPrintJSON(val, indent + 2);
+        }
+        std::cout << indentation << "}\n";
+        break;
+        case JSONValue::Type::ARRAY:
+            std::cout << "[\n";
+        for (const auto& val : value.arrayValue) {
+            prettyPrintJSON(val, indent + 2);
+        }
+        std::cout << indentation << "]\n";
+        break;
+        case JSONValue::Type::STRING:
+            std::cout << "\"" << value.stringValue << "\"\n";
+        break;
+        case JSONValue::Type::NUMBER:
+            std::cout << value.numberValue << "\n";
+        break;
+        case JSONValue::Type::BOOLEAN:
+            std::cout << (value.boolValue ? "true" : "false") << "\n";
+        break;
+        case JSONValue::Type::NULLVALUE:
+            std::cout << "null\n";
+        break;
+    }
+}
+
 
 int main() {
     try {
