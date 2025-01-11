@@ -492,6 +492,17 @@ std::vector<std::string> findKeysByPrefix(const JSONValue& value, const std::str
     return result;
 }
 
+void getLeafKeys(const JSONValue& value, std::vector<std::string>& leafKeys, const std::string& prefix = "") {
+    if (value.type == JSONValue::Type::OBJECT) {
+        for (const auto& [key, val] : value.objectValue) {
+            std::string fullKey = prefix.empty() ? key : prefix + "." + key;
+            getLeafKeys(val, leafKeys, fullKey);
+        }
+    } else if (value.type != JSONValue::Type::NULLVALUE) {
+        leafKeys.push_back(prefix);
+    }
+}
+
 
 int main() {
     try {
