@@ -67,6 +67,9 @@ private:
     JSONValue parseValue();
     JSONValue parseObject();
     JSONValue parseArray();
+
+    std::string parseUnicodeEscape();
+
     JSONValue parseString();
     JSONValue parseNumber();
     JSONValue parseLiteral(const std::string& literal, JSONValue value);
@@ -354,6 +357,20 @@ void testJSONParser() {
     assert(result.objectValue["name"].stringValue == "Elina");
 
     std::cout << "All tests passed!" << std::endl;
+}
+
+void mergeJSON(JSONValue& target, const JSONValue& source) {
+    if (target.type == JSONValue::Type::OBJECT && source.type == JSONValue::Type::OBJECT) {
+        for (const auto& [key, val] : source.objectValue) {
+            if (target.objectValue.count(key)) {
+                mergeJSON(target.objectValue[key], val);
+            } else {
+                target.objectValue[key] = val;
+            }
+        }
+    } else {
+        target = source;
+    }
 }
 
 int main() {
