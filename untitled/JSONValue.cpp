@@ -381,6 +381,25 @@ void deleteKey(JSONValue& root, const std::string& key) {
     }
 }
 
+bool validateSchema(const JSONValue& json, const JSONValue& schema) {
+    if (schema.type != JSONValue::Type::OBJECT || json.type != JSONValue::Type::OBJECT) {
+        throw std::runtime_error("Schema validation supports only JSON objects.");
+    }
+
+    for (const auto& [key, value] : schema.objectValue) {
+        if (!json.objectValue.count(key)) {
+            std::cerr << "Validation Error: Missing key '" << key << "' in JSON.\n";
+            return false;
+        }
+        if (value.type != json.objectValue.at(key).type) {
+            std::cerr << "Validation Error: Type mismatch for key '" << key << "'.\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+
 int main() {
     try {
         // File input example
