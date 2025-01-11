@@ -503,6 +503,34 @@ void getLeafKeys(const JSONValue& value, std::vector<std::string>& leafKeys, con
     }
 }
 
+bool areEqual(const JSONValue& a, const JSONValue& b) {
+    if (a.type != b.type) return false;
+
+    switch (a.type) {
+        case JSONValue::Type::OBJECT:
+            if (a.objectValue.size() != b.objectValue.size()) return false;
+        for (const auto& [key, val] : a.objectValue) {
+            if (!b.objectValue.count(key) || !areEqual(val, b.objectValue.at(key))) return false;
+        }
+        return true;
+        case JSONValue::Type::ARRAY:
+            if (a.arrayValue.size() != b.arrayValue.size()) return false;
+        for (size_t i = 0; i < a.arrayValue.size(); ++i) {
+            if (!areEqual(a.arrayValue[i], b.arrayValue[i])) return false;
+        }
+        return true;
+        case JSONValue::Type::STRING:
+            return a.stringValue == b.stringValue;
+        case JSONValue::Type::NUMBER:
+            return a.numberValue == b.numberValue;
+        case JSONValue::Type::BOOLEAN:
+            return a.boolValue == b.boolValue;
+        case JSONValue::Type::NULLVALUE:
+            return true;
+    }
+    return false;
+}
+
 
 int main() {
     try {
