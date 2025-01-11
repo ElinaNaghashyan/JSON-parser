@@ -457,6 +457,27 @@ void flattenJSON(const JSONValue& value, std::unordered_map<std::string, JSONVal
     }
 }
 
+JSONValue unflattenJSON(const std::unordered_map<std::string, JSONValue>& flattened) {
+    JSONValue result(JSONValue::Type::OBJECT);
+    for (const auto& [flatKey, val] : flattened) {
+        std::stringstream ss(flatKey);
+        std::string token;
+        JSONValue* current = &result;
+
+        while (std::getline(ss, token, '.')) {
+            if (current->type != JSONValue::Type::OBJECT) {
+                current->type = JSONValue::Type::OBJECT;
+            }
+            if (!current->objectValue.count(token)) {
+                current->objectValue[token] = JSONValue(JSONValue::Type::OBJECT);
+            }
+            current = &current->objectValue[token];
+        }
+        *current = val;
+    }
+    return result;
+}
+
 
 int main() {
     try {
