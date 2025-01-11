@@ -373,6 +373,14 @@ void mergeJSON(JSONValue& target, const JSONValue& source) {
     }
 }
 
+void deleteKey(JSONValue& root, const std::string& key) {
+    if (root.type == JSONValue::Type::OBJECT) {
+        root.objectValue.erase(key);
+    } else {
+        throw std::runtime_error("Cannot delete key from a non-object JSON value");
+    }
+}
+
 int main() {
     try {
         // File input example
