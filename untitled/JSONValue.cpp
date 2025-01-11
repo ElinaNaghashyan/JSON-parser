@@ -267,16 +267,34 @@ char consume(std::string &input, size_t &position) {
     return input[position++];
 }
 
-std::string parseUnicodeEscape(std::string &input, size_t &position) {
+std::string JSONParser::parseUnicodeEscape() {
     std::string unicode;
     for (int i = 0; i < 4; ++i) {
-        char digit = consume(input, position);
+        char digit = consume();
         if (!std::isxdigit(digit)) {
             throw std::runtime_error("Invalid Unicode escape sequence");
         }
         unicode += digit;
     }
-    return unicode;
+    // Convert the 4-digit Unicode escape to a UTF-8 character.
+    unsigned int codePoint = std::stoul(unicode, nullptr, 16);
+    std::string utf8;
+    if (codePoint <= 0x7F) {
+        utf8 += static_cast<char>(codePoint);
+    } else if (codePoint <= 0x7FF) {
+        utf8 += static_cast<char>(0xC0 | ((codePoint >> 6) & 0x1F));
+        utf8 += static_cast<char>(0x80 | (codePoint & 0x3F));
+    } else if (codePoint <= 0xFFFF) {
+        utf8 += static_cast<char>(0xE0 | ((codePoint >> 12) & 0x0F));
+        utf8 += static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F));
+        utf8 += static_cast<char>(0x80 | (codePoint & 0x3F));
+    } else {
+        utf8 += static_cast<char>(0xF0 | ((codePoint >> 18) & 0x07));
+        utf8 += static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F));
+        utf8 += static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F));
+        utf8 += static_cast<char>(0x80 | (codePoint & 0x3F));
+    }
+    return utf8;
 }
 
 JSONValue JSONParser::parseString() {
