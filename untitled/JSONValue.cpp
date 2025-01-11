@@ -446,6 +446,17 @@ bool containsKey(const JSONValue& value, const std::string& key) {
     throw std::runtime_error("containsKey: JSON value is not an object");
 }
 
+void flattenJSON(const JSONValue& value, std::unordered_map<std::string, JSONValue>& flattened, const std::string& prefix = "") {
+    if (value.type == JSONValue::Type::OBJECT) {
+        for (const auto& [key, val] : value.objectValue) {
+            std::string newKey = prefix.empty() ? key : prefix + "." + key;
+            flattenJSON(val, flattened, newKey);
+        }
+    } else {
+        flattened[prefix] = value;
+    }
+}
+
 
 int main() {
     try {
