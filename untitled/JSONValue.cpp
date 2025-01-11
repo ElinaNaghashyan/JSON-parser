@@ -432,6 +432,13 @@ void prettyPrintJSON(const JSONValue& value, int indent = 0) {
     }
 }
 
+size_t countKeys(const JSONValue& value) {
+    if (value.type == JSONValue::Type::OBJECT) {
+        return value.objectValue.size();
+    }
+    throw std::runtime_error("countKeys: JSON value is not an object");
+}
+
 
 int main() {
     try {
