@@ -439,6 +439,13 @@ size_t countKeys(const JSONValue& value) {
     throw std::runtime_error("countKeys: JSON value is not an object");
 }
 
+bool containsKey(const JSONValue& value, const std::string& key) {
+    if (value.type == JSONValue::Type::OBJECT) {
+        return value.objectValue.find(key) != value.objectValue.end();
+    }
+    throw std::runtime_error("containsKey: JSON value is not an object");
+}
+
 
 int main() {
     try {
