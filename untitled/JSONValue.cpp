@@ -478,6 +478,20 @@ JSONValue unflattenJSON(const std::unordered_map<std::string, JSONValue>& flatte
     return result;
 }
 
+std::vector<std::string> findKeysByPrefix(const JSONValue& value, const std::string& prefix) {
+    std::vector<std::string> result;
+    if (value.type == JSONValue::Type::OBJECT) {
+        for (const auto& [key, _] : value.objectValue) {
+            if (key.find(prefix) == 0) {
+                result.push_back(key);
+            }
+        }
+    } else {
+        throw std::runtime_error("findKeysByPrefix: JSON value is not an object");
+    }
+    return result;
+}
+
 
 int main() {
     try {
